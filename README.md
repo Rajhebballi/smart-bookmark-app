@@ -1,36 +1,227 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Smart Bookmark App
 
-## Getting Started
+A simple full-stack bookmark manager built using Next.js (App Router), Supabase, and Tailwind CSS.
 
-First, run the development server:
+The application allows users to log in using Google OAuth and manage their personal bookmarks with real-time updates.
 
-```bash
+Live Demo:
+https://smart-bookmark-app-beryl.vercel.app
+
+Repository:
+https://github.com/Rajhebballi/smart-bookmark-app
+
+Features
+
+Google OAuth authentication (no email/password login)
+
+Each user has private bookmarks (user-isolated data)
+
+Add bookmarks (URL + title)
+
+Delete bookmarks
+
+Real-time updates across multiple tabs
+
+Protected routes (unauthenticated users redirected to login)
+
+Deployed on Vercel (production ready)
+
+Tech Stack
+
+Frontend:
+
+Next.js (App Router)
+
+Tailwind CSS
+
+Backend / BaaS:
+
+Supabase
+
+Authentication (Google OAuth)
+
+Postgres Database
+
+Realtime subscriptions
+
+Deployment:
+
+Vercel
+
+Architecture Overview
+
+Client (Next.js)
+→ Supabase Auth (Google OAuth)
+→ Supabase Database (Postgres)
+→ Supabase Realtime (WebSocket channel)
+
+Flow:
+
+User logs in via Google
+
+Supabase returns session
+
+User ID is stored in bookmarks table
+
+All queries are filtered by user_id
+
+Realtime subscription listens for INSERT and DELETE events
+
+Database Schema
+
+Table: bookmarks
+
+Columns:
+
+id (uuid, primary key)
+
+created_at (timestamp)
+
+user_id (uuid, foreign key → auth.users)
+
+title (text)
+
+url (text)
+
+Row Level Security (RLS) enabled:
+
+Policies:
+
+Users can insert bookmarks only where user_id = auth.uid()
+
+Users can select only their own bookmarks
+
+Users can delete only their own bookmarks
+
+This ensures strict data isolation between users.
+
+Environment Variables
+
+The following environment variables are required:
+
+NEXT_PUBLIC_SUPABASE_URL=your_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+
+These were configured in:
+
+Vercel → Project → Settings → Environment Variables
+
+Local Development Setup
+
+Clone repository
+
+git clone https://github.com/Rajhebballi/smart-bookmark-app.git
+
+cd smart-bookmark-app
+
+Install dependencies
+
+npm install
+
+Create .env.local file
+
+Add:
+
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+
+Run development server
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+OAuth Configuration (Production)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Supabase → Authentication → URL Configuration
 
-## Learn More
+Site URL:
+https://smart-bookmark-app-beryl.vercel.app
 
-To learn more about Next.js, take a look at the following resources:
+Redirect URL:
+https://smart-bookmark-app-beryl.vercel.app/auth/callback
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Google Cloud Console:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Authorized JavaScript Origins:
+https://smart-bookmark-app-beryl.vercel.app
 
-## Deploy on Vercel
+Authorized Redirect URI:
+https://<project-id>.supabase.co/auth/v1/callback
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Real-time Implementation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Supabase Realtime is enabled on the bookmarks table.
+
+The client subscribes to:
+
+INSERT events
+
+DELETE events
+
+When a bookmark is added in one tab,
+other open sessions instantly receive the update without refreshing.
+
+Route Protection
+
+Middleware checks session
+
+If no active session → redirect to /login
+
+Prevents direct access to protected routes like /dashboard
+
+Challenges Faced
+
+OAuth redirect mismatch in production
+Fixed by updating Site URL and Authorized JavaScript Origins.
+
+Hydration mismatch (Next.js SSR issue)
+Fixed by ensuring Supabase client runs only on client side.
+
+Real-time not triggering
+Fixed by enabling replication on bookmarks table and verifying subscription channel.
+
+Environment variables not loading in production
+Fixed by properly setting them in Vercel dashboard.
+
+What I Learned
+
+Proper OAuth configuration between Supabase and Google
+
+Row Level Security implementation for user isolation
+
+Realtime subscriptions using Supabase channels
+
+Production deployment nuances (environment variables, redirect URLs)
+
+Handling SSR vs client-side rendering in Next.js App Router
+
+Future Improvements
+
+Bookmark editing feature
+
+Input validation & URL normalization
+
+Search / filter bookmarks
+
+Custom domain setup
+
+Rate limiting & analytics
+
+Submission Checklist
+
+Google OAuth only (no password login)
+
+Private user bookmarks
+
+Real-time updates across tabs
+
+Delete functionality
+
+Deployed on Vercel
+
+Working production URL
+
+Clean README with explanation
+
+All requirements from the screening task have been implemented.
